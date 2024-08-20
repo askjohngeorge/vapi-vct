@@ -38,7 +38,7 @@ def fetch_assistant_and_save(assistant_ids):
             print(f"Assistant data saved to {filename}")
 
         except requests.exceptions.RequestException as e:
-            print(f"Error fetching assistant: {e}")
+            print(f"Error fetching assistant: {e}\nResponse details: {e.response.text}")
 
 # Usage
 assistant_ids_file = "assistants.txt"
