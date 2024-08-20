@@ -70,9 +70,15 @@ This will create a JSON file for each assistant, combining the components from t
 
 ### Updating Assistants
 
-```
-python vapi-update-assistants.py path/to/assistant1.json path/to/assistant2.json
-```
+1. Ensure the VAPI_PRIVATE_API_KEY environment variable is set.
+   ```
+   export VAPI_PRIVATE_API_KEY=your_api_key_here
+   ```
+
+2. Run the update script:
+   ```
+   python vapi-update-assistants.py path/to/assistant1.json path/to/assistant2.json
+   ```
 
 This will update the Vapi assistant configurations from the JSON files.
 
