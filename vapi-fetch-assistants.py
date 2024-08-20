@@ -2,9 +2,11 @@ import requests
 import json
 import os
 
+
 def read_assistant_ids(filename):
-    with open(filename, 'r') as file:
+    with open(filename, "r") as file:
         return [line.strip() for line in file if line.strip()]
+
 
 def fetch_assistant_and_save(assistant_ids):
     for assistant_id in assistant_ids:
@@ -12,14 +14,14 @@ def fetch_assistant_and_save(assistant_ids):
         url = f"https://api.vapi.ai/assistant/{assistant_id}"
 
         # Get the private API key from an environment variable
-        api_key = os.environ.get('VAPI_PRIVATE_API_KEY')
+        api_key = os.environ.get("VAPI_PRIVATE_API_KEY")
         if not api_key:
             raise ValueError("VAPI_PRIVATE_API_KEY environment variable is not set")
 
         # Headers
         headers = {
             "Authorization": f"Bearer {api_key}",
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
         }
 
         try:
@@ -32,13 +34,14 @@ def fetch_assistant_and_save(assistant_ids):
 
             # Save to a local JSON file
             filename = f"assistant_{assistant_id}.json"
-            with open(filename, 'w') as f:
+            with open(filename, "w") as f:
                 json.dump(assistant_data, f, indent=2)
 
             print(f"Assistant data saved to {filename}")
 
         except requests.exceptions.RequestException as e:
             print(f"Error fetching assistant: {e}\nResponse details: {e.response.text}")
+
 
 # Usage
 assistant_ids_file = "assistants.txt"
