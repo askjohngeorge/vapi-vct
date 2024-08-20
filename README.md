@@ -1,6 +1,6 @@
 # Vapi-VCT (Vapi Version Control Tools)
 
-Vapi-VCT is a suite of Python scripts designed to facilitate version control and management of Vapi AI assistants. These tools allow you to decompose, recompose, and fetch Vapi assistant configurations, making it easier to track changes, collaborate, and maintain your AI assistants.
+Vapi-VCT is a suite of Python scripts designed to facilitate version control and management of Vapi AI assistants. These tools allow you to decompose, recompose, fetch, and update Vapi assistant configurations, making it easier to track changes, collaborate, and maintain your AI assistants.
 
 ## Features
 
@@ -10,9 +10,10 @@ Vapi-VCT is a suite of Python scripts designed to facilitate version control and
 
 ## Scripts
 
-1. `vapi-fetch-assistants-from-file.py`: Fetches multiple Vapi assistant configurations based on IDs from a file.
+1. `vapi-fetch-assistants.py`: Fetches multiple Vapi assistant configurations based on IDs from a file.
 2. `vapi-assistant-decomposer.py`: Extracts components from Vapi assistant JSON files.
 3. `vapi-assistant-recomposer.py`: Rebuilds Vapi assistant JSON files from extracted components.
+4. `vapi-update-assistants.py`: Updates Vapi assistant configurations from JSON files.
 
 ## Prerequisites
 
@@ -66,6 +67,14 @@ python vapi-assistant-recomposer.py path/to/assistant1_directory path/to/assista
 ```
 
 This will create a JSON file for each assistant, combining the components from their respective directories.
+
+### Updating Assistants
+
+```
+python vapi-update-assistants.py path/to/assistant1.json path/to/assistant2.json
+```
+
+This will update the Vapi assistant configurations from the JSON files.
 
 ## Contributing
 
