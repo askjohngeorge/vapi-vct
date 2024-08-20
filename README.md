@@ -47,7 +47,7 @@ Vapi-VCT is a suite of Python scripts designed to facilitate version control and
 
 3. Run the fetch script:
    ```
-   python vapi-fetch-assistants-from-file.py
+   python vapi-fetch-assistants.py
    ```
 
 This will create JSON files for each fetched assistant in the format `assistant_<assistantId>.json`.
