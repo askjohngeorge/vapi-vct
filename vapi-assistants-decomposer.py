@@ -4,6 +4,8 @@ import argparse
 
 
 def extract_and_save(content, filename, directory):
+    if content is None:
+        return None
     with open(os.path.join(directory, filename), "w", encoding="utf-8") as f:
         f.write(content)
     return f"file://{filename}"
@@ -21,41 +23,47 @@ def process_assistant_json(file_path):
 
     # Extract system prompt
     system_message = next(
-        msg for msg in data["model"]["messages"] if msg["role"] == "system"
+        (msg for msg in data["model"]["messages"] if msg["role"] == "system"), None
     )
-    data["model"]["messages"][0]["content"] = extract_and_save(
-        system_message["content"], "system-prompt.txt", directory
-    )
+    if system_message:
+        data["model"]["messages"][0]["content"] = extract_and_save(
+            system_message["content"], "system-prompt.txt", directory
+        )
 
     # Extract firstMessage
-    data["firstMessage"] = extract_and_save(
-        data["firstMessage"], "first-message.txt", directory
-    )
+    if "firstMessage" in data:
+        data["firstMessage"] = extract_and_save(
+            data["firstMessage"], "first-message.txt", directory
+        )
 
-    # Extract summaryPrompt
-    data["analysisPlan"]["summaryPrompt"] = extract_and_save(
-        data["analysisPlan"]["summaryPrompt"], "summary-prompt.txt", directory
-    )
+    # Extract analysisPlan components
+    if "analysisPlan" in data:
+        analysis_plan = data["analysisPlan"]
 
-    # Extract structuredDataPrompt and structuredDataSchema
-    data["analysisPlan"]["structuredDataPrompt"] = extract_and_save(
-        data["analysisPlan"]["structuredDataPrompt"],
-        "structured-data-prompt.txt",
-        directory,
-    )
+        if "summaryPrompt" in analysis_plan:
+            analysis_plan["summaryPrompt"] = extract_and_save(
+                analysis_plan["summaryPrompt"], "summary-prompt.txt", directory
+            )
 
-    with open(
-        os.path.join(directory, "structured-data-schema.json"), "w", encoding="utf-8"
-    ) as f:
-        json.dump(data["analysisPlan"]["structuredDataSchema"], f, indent=2)
-    data["analysisPlan"]["structuredDataSchema"] = "file://structured-data-schema.json"
+        if "structuredDataPrompt" in analysis_plan:
+            analysis_plan["structuredDataPrompt"] = extract_and_save(
+                analysis_plan["structuredDataPrompt"],
+                "structured-data-prompt.txt",
+                directory,
+            )
 
-    # Extract successEvaluationPrompt
-    data["analysisPlan"]["successEvaluationPrompt"] = extract_and_save(
-        data["analysisPlan"]["successEvaluationPrompt"],
-        "success-evaluation-prompt.txt",
-        directory,
-    )
+        if "structuredDataSchema" in analysis_plan:
+            schema_path = os.path.join(directory, "structured-data-schema.json")
+            with open(schema_path, "w", encoding="utf-8") as f:
+                json.dump(analysis_plan["structuredDataSchema"], f, indent=2)
+            analysis_plan["structuredDataSchema"] = "file://structured-data-schema.json"
+
+        if "successEvaluationPrompt" in analysis_plan:
+            analysis_plan["successEvaluationPrompt"] = extract_and_save(
+                analysis_plan["successEvaluationPrompt"],
+                "success-evaluation-prompt.txt",
+                directory,
+            )
 
     # Save the modified JSON
     with open(os.path.join(directory, "config.json"), "w", encoding="utf-8") as f:

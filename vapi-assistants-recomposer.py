@@ -8,6 +8,18 @@ def read_file(file_path):
         return f.read()
 
 
+def resolve_file_path(file_reference, directory):
+    if isinstance(file_reference, str) and file_reference.startswith("file://"):
+        return os.path.join(directory, file_reference[7:])
+    return file_reference
+
+
+def read_file_if_exists(file_path):
+    if os.path.exists(file_path):
+        return read_file(file_path)
+    return None
+
+
 def process_directory(directory):
     config_path = os.path.join(directory, "config.json")
     if not os.path.exists(config_path):
@@ -16,50 +28,50 @@ def process_directory(directory):
     with open(config_path, "r", encoding="utf-8") as f:
         data = json.load(f)
 
-    # Helper function to resolve file paths
-    def resolve_file_path(file_reference):
-        if file_reference.startswith("file://"):
-            return os.path.join(directory, file_reference[7:])
-        return file_reference
-
     # Recompose system prompt
-    system_message = next(
-        msg for msg in data["model"]["messages"] if msg["role"] == "system"
-    )
-    system_prompt_path = resolve_file_path(system_message["content"])
-    system_message["content"] = read_file(system_prompt_path)
+    system_prompt_path = os.path.join(directory, "system-prompt.txt")
+    if os.path.exists(system_prompt_path):
+        system_message = next(
+            (msg for msg in data["model"]["messages"] if msg["role"] == "system"), None
+        )
+        if system_message:
+            system_message["content"] = read_file(system_prompt_path)
+        else:
+            data["model"]["messages"].insert(
+                0, {"role": "system", "content": read_file(system_prompt_path)}
+            )
 
     # Recompose firstMessage
-    first_message_path = resolve_file_path(data["firstMessage"])
-    data["firstMessage"] = read_file(first_message_path)
+    first_message_path = os.path.join(directory, "first-message.txt")
+    if os.path.exists(first_message_path):
+        data["firstMessage"] = read_file(first_message_path)
 
-    # Recompose summaryPrompt
-    summary_prompt_path = resolve_file_path(data["analysisPlan"]["summaryPrompt"])
-    data["analysisPlan"]["summaryPrompt"] = read_file(summary_prompt_path)
+    # Recompose analysisPlan components
+    if "analysisPlan" not in data:
+        data["analysisPlan"] = {}
+    analysis_plan = data["analysisPlan"]
 
-    # Recompose structuredDataPrompt
-    structured_data_prompt_path = resolve_file_path(
-        data["analysisPlan"]["structuredDataPrompt"]
-    )
-    data["analysisPlan"]["structuredDataPrompt"] = read_file(
-        structured_data_prompt_path
-    )
+    summary_prompt_path = os.path.join(directory, "summary-prompt.txt")
+    if os.path.exists(summary_prompt_path):
+        analysis_plan["summaryPrompt"] = read_file(summary_prompt_path)
 
-    # Recompose structuredDataSchema
-    structured_data_schema_path = resolve_file_path(
-        data["analysisPlan"]["structuredDataSchema"]
-    )
-    data["analysisPlan"]["structuredDataSchema"] = json.loads(
-        read_file(structured_data_schema_path)
-    )
+    structured_data_prompt_path = os.path.join(directory, "structured-data-prompt.txt")
+    if os.path.exists(structured_data_prompt_path):
+        analysis_plan["structuredDataPrompt"] = read_file(structured_data_prompt_path)
 
-    # Recompose successEvaluationPrompt
-    success_evaluation_prompt_path = resolve_file_path(
-        data["analysisPlan"]["successEvaluationPrompt"]
+    structured_data_schema_path = os.path.join(directory, "structured-data-schema.json")
+    if os.path.exists(structured_data_schema_path):
+        analysis_plan["structuredDataSchema"] = json.loads(
+            read_file(structured_data_schema_path)
+        )
+
+    success_evaluation_prompt_path = os.path.join(
+        directory, "success-evaluation-prompt.txt"
     )
-    data["analysisPlan"]["successEvaluationPrompt"] = read_file(
-        success_evaluation_prompt_path
-    )
+    if os.path.exists(success_evaluation_prompt_path):
+        analysis_plan["successEvaluationPrompt"] = read_file(
+            success_evaluation_prompt_path
+        )
 
     # Save the recomposed JSON
     directory_name = os.path.basename(os.path.normpath(directory))
