@@ -7,6 +7,7 @@ Vapi-VCT is a suite of Python scripts designed to facilitate version control and
 - **Fetch**: Retrieve multiple Vapi assistant configurations from their IDs.
 - **Decompose**: Extract components of a Vapi assistant JSON into separate files for easier version control.
 - **Recompose**: Rebuild a Vapi assistant JSON from its decomposed components.
+- **Update**: Update Vapi assistant configurations from JSON files.
 
 ## Scripts
 
