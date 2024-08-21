@@ -7,14 +7,16 @@ import requests
 import sys
 
 
-def load_config(config_file):
-    default_config_path = os.path.expanduser("~/.vapi-vct/vapi-config.json")
+def load_config(config_file, project_specific=False):
     config = {}
 
-    # Load default config if it exists
-    if os.path.exists(default_config_path):
-        with open(default_config_path, "r") as f:
-            config = json.load(f)
+    if not project_specific:
+        default_config_path = os.path.expanduser("~/.vapi-vct/vapi-config.json")
+
+        # Load default config if it exists
+        if os.path.exists(default_config_path):
+            with open(default_config_path, "r") as f:
+                config = json.load(f)
 
     # Load and merge project-specific config
     try:
@@ -347,6 +349,81 @@ def update(config: str, no_recompose: bool):
         files = recomposed_files
 
     update_assistants_from_files(files, api_key)
+
+
+def update_config(config_file, updated_config):
+    with open(config_file, "w") as f:
+        json.dump(updated_config, f, indent=2)
+
+
+@cli.command()
+@click.argument("assistant_ids", nargs=-1, required=True)
+@click.option(
+    "--config", default="vapi-config.json", help="Project-specific configuration file"
+)
+def add_assistant(assistant_ids, config):
+    """Add one or more assistant IDs to the configuration"""
+    current_config = load_config(config, project_specific=True)
+    current_assistants = set(current_config.get("assistant_ids", []))
+
+    for assistant_id in assistant_ids:
+        if assistant_id in current_assistants:
+            click.echo(f"Assistant ID {assistant_id} already exists. Skipping.")
+        else:
+            current_assistants.add(assistant_id)
+            click.echo(f"Added assistant ID {assistant_id}")
+
+    current_config["assistant_ids"] = list(current_assistants)
+    update_config(config, current_config)
+
+
+@cli.command()
+@click.argument("assistant_ids", nargs=-1, required=True)
+@click.option(
+    "--config", default="vapi-config.json", help="Project-specific configuration file"
+)
+def del_assistant(assistant_ids, config):
+    """Delete one or more assistant IDs from the configuration"""
+    current_config = load_config(config, project_specific=True)
+    current_assistants = set(current_config.get("assistant_ids", []))
+
+    for assistant_id in assistant_ids:
+        if assistant_id in current_assistants:
+            current_assistants.remove(assistant_id)
+            click.echo(f"Deleted assistant ID {assistant_id}")
+        else:
+            click.echo(f"Assistant ID {assistant_id} not found. Skipping.")
+
+    current_config["assistant_ids"] = list(current_assistants)
+    update_config(config, current_config)
+
+
+@cli.command()
+@click.argument("api_key")
+@click.option(
+    "--config", default="vapi-config.json", help="Project-specific configuration file"
+)
+def add_apikey(api_key, config):
+    """Add an API key to the configuration"""
+    current_config = load_config(config, project_specific=True)
+    current_config["api_key"] = api_key
+    update_config(config, current_config)
+    click.echo("API key added successfully")
+
+
+@cli.command()
+@click.option(
+    "--config", default="vapi-config.json", help="Project-specific configuration file"
+)
+def del_apikey(config):
+    """Delete the API key from the configuration"""
+    current_config = load_config(config, project_specific=True)
+    if "api_key" in current_config:
+        del current_config["api_key"]
+        update_config(config, current_config)
+        click.echo("API key deleted successfully")
+    else:
+        click.echo("No API key found in the configuration")
 
 
 if __name__ == "__main__":
