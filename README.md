@@ -1,25 +1,18 @@
 # Vapi-VCT (Vapi Version Control Tools)
 
-Vapi-VCT is a suite of Python scripts designed to facilitate version control and management of Vapi AI assistants. These tools allow you to decompose, recompose, fetch, and update Vapi assistant configurations, making it easier to track changes, collaborate, and maintain your AI assistants.
+Vapi-VCT is a Python-based CLI tool designed to facilitate version control and management of Vapi AI assistants. This tool allows you to fetch, decompose, recompose, and update Vapi assistant configurations, making it easier to track changes, collaborate, and maintain your AI assistants.
 
 ## Features
 
-- **Fetch**: Retrieve multiple Vapi assistant configurations from their IDs.
+- **Fetch**: Retrieve Vapi assistant configurations from the Vapi API.
 - **Decompose**: Extract components of a Vapi assistant JSON into separate files for easier version control.
 - **Recompose**: Rebuild a Vapi assistant JSON from its decomposed components.
-- **Update**: Update Vapi assistant configurations from JSON files.
-
-## Scripts
-
-1. `vapi-fetch-assistants.py`: Fetches multiple Vapi assistant configurations based on IDs from a file.
-2. `vapi-assistant-decomposer.py`: Extracts components from Vapi assistant JSON files.
-3. `vapi-assistant-recomposer.py`: Rebuilds Vapi assistant JSON files from extracted components.
-4. `vapi-update-assistants.py`: Updates Vapi assistant configurations from JSON files.
+- **Update**: Push updated Vapi assistant configurations back to the Vapi API.
 
 ## Prerequisites
 
 - Python 3.x
-- Access to Vapi API (for fetching assistants)
+- Access to Vapi API
 - Vapi Private API Key
 
 ## Installation
@@ -35,53 +28,57 @@ Vapi-VCT is a suite of Python scripts designed to facilitate version control and
    pip install -r requirements.txt
    ```
 
+## Configuration
+
+Create a `vapi-config.json` file in the root directory with the following structure:
+
+```json
+{
+  "api_key": "your_vapi_api_key_here",
+  "assistant_ids": ["assistant_id_1", "assistant_id_2", ...]
+}
+```
+
 ## Usage
+
+Vapi-VCT provides a command-line interface with two main commands: `fetch` and `update`.
 
 ### Fetching Assistants
 
-1. Create a file named `assistants.txt` with one assistant ID per line.
-
-2. Export your Vapi Private API Key as an environment variable:
-   ```
-   export VAPI_PRIVATE_API_KEY=your_api_key_here
-   ```
-
-3. Run the fetch script:
-   ```
-   python vapi-fetch-assistants.py
-   ```
-
-This will create JSON files for each fetched assistant in the format `assistant_<assistantId>.json`.
-
-### Decomposing Assistants
+To fetch assistants and optionally decompose them:
 
 ```
-python vapi-assistant-decomposer.py path/to/assistant1.json path/to/assistant2.json
+python vapi-cli.py fetch [--config CONFIG_FILE] [--no-decompose]
 ```
 
-This will create a directory for each assistant, containing separate files for each component.
-
-### Recomposing Assistants
-
-```
-python vapi-assistant-recomposer.py path/to/assistant1_directory path/to/assistant2_directory
-```
-
-This will create a JSON file for each assistant, combining the components from their respective directories.
+- `--config`: Specify a custom configuration file (default: `vapi-config.json`)
+- `--no-decompose`: Skip decomposing fetched assistants
 
 ### Updating Assistants
 
-1. Ensure the VAPI_PRIVATE_API_KEY environment variable is set.
-   ```
-   export VAPI_PRIVATE_API_KEY=your_api_key_here
-   ```
+To update assistants, optionally recomposing them first:
 
-2. Run the update script:
-   ```
-   python vapi-update-assistants.py path/to/assistant1.json path/to/assistant2.json
-   ```
+```
+python vapi-cli.py update [--config CONFIG_FILE] [--no-recompose]
+```
 
-This will update the Vapi assistant configurations from the JSON files.
+- `--config`: Specify a custom configuration file (default: `vapi-config.json`)
+- `--no-recompose`: Skip recomposing assistants before updating
+
+## File Structure
+
+After fetching and decomposing, each assistant will have its own directory:
+
+```
+assistant_id/
+├── assistant-config.json
+├── system-prompt.txt
+├── first-message.txt
+├── summary-prompt.txt
+├── structured-data-prompt.txt
+├── structured-data-schema.json
+└── success-evaluation-prompt.txt
+```
 
 ## Contributing
 
@@ -89,11 +86,7 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE.md) file for details.
-
-## Acknowledgments
-
-- Vapi for providing the voice AI assistant platform
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## Disclaimer
 
