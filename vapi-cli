@@ -399,6 +399,23 @@ def del_assistant(assistant_ids, config):
 
 
 @cli.command()
+@click.option(
+    "--config", default="vapi-config.json", help="Project-specific configuration file"
+)
+def list_assistants(config):
+    """List all assistant IDs in the configuration"""
+    current_config = load_config(config, project_specific=True)
+    assistant_ids = current_config.get("assistant_ids", [])
+
+    if assistant_ids:
+        click.echo("Assistant IDs in the configuration:")
+        for assistant_id in assistant_ids:
+            click.echo(f"- {assistant_id}")
+    else:
+        click.echo("No assistant IDs found in the configuration.")
+
+
+@cli.command()
 @click.argument("api_key")
 @click.option(
     "--config", default="vapi-config.json", help="Project-specific configuration file"

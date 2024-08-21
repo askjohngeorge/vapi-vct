@@ -67,7 +67,7 @@ In your project directory, create a `vapi-config.json` file with the following s
 }
 ```
 
-The tool will first load the default configuration (if it exists) and then merge it with the project-specific configuration, with the project-specific settings taking precedence. This allows you to keep your API key secure and separate from project files while still being able to override or add settings on a per-project basis.
+The tool will first load the default configuration (if it exists) and then merge it with the project-specific configuration, with the project-specific settings taking precedence.
 
 ## Usage
 
@@ -127,6 +127,14 @@ To delete the API key from the configuration:
 
 ```
 vapi-cli del-apikey [--config CONFIG_FILE]
+```
+
+#### Listing Assistant IDs
+
+To list all assistant IDs in the configuration:
+
+```
+vapi-cli list-assistants [--config CONFIG_FILE]
 ```
 
 For all configuration management commands:
