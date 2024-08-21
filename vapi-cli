@@ -299,7 +299,21 @@ def config():
     pass
 
 
+@config.group()
+def assistants():
+    """Manage assistant IDs"""
+    pass
+
+
+@config.group()
+def api_key():
+    """Manage API key"""
+    pass
+
+
 cli.add_command(config)
+config.add_command(assistants)
+config.add_command(api_key)
 
 
 @cli.command()
@@ -310,7 +324,7 @@ cli.add_command(config)
     "--no-decompose", is_flag=True, help="Skip decomposing fetched assistants"
 )
 def fetch(config: str, no_decompose: bool):
-    """Fetch Vapi assistants and decompose them (unless --no-decompose is specified)"""
+    """Fetch and optionally decompose Vapi assistants"""
     config_data = load_config(config)
     api_key = get_api_key(config_data)
     assistant_ids = get_assistant_ids(config_data)
@@ -335,7 +349,7 @@ def fetch(config: str, no_decompose: bool):
     "--no-recompose", is_flag=True, help="Skip recomposing assistants before updating"
 )
 def update(config: str, no_recompose: bool):
-    """Update Vapi assistants, recomposing them first (unless --no-recompose is specified)"""
+    """Update Vapi assistants, optionally recomposing first"""
     config_data = load_config(config)
     api_key = get_api_key(config_data)
     assistant_ids = get_assistant_ids(config_data)
@@ -365,12 +379,12 @@ def update_config(config_file, updated_config):
         json.dump(updated_config, f, indent=2)
 
 
-@config.command()
+@assistants.command()
 @click.argument("assistant_ids", nargs=-1, required=True)
 @click.option(
     "--config", default="vapi-config.json", help="Project-specific configuration file"
 )
-def add_assistant(assistant_ids, config):
+def add(assistant_ids, config):
     """Add one or more assistant IDs to the configuration"""
     current_config = load_config(config, project_specific=True)
     current_assistants = set(current_config.get("assistant_ids", []))
@@ -386,12 +400,12 @@ def add_assistant(assistant_ids, config):
     update_config(config, current_config)
 
 
-@config.command()
+@assistants.command()
 @click.argument("assistant_ids", nargs=-1, required=True)
 @click.option(
     "--config", default="vapi-config.json", help="Project-specific configuration file"
 )
-def del_assistant(assistant_ids, config):
+def remove(assistant_ids, config):
     """Delete one or more assistant IDs from the configuration"""
     current_config = load_config(config, project_specific=True)
     current_assistants = set(current_config.get("assistant_ids", []))
@@ -407,11 +421,11 @@ def del_assistant(assistant_ids, config):
     update_config(config, current_config)
 
 
-@config.command()
+@assistants.command()
 @click.option(
     "--config", default="vapi-config.json", help="Project-specific configuration file"
 )
-def list_assistants(config):
+def list(config):
     """List all assistant IDs in the configuration"""
     current_config = load_config(config, project_specific=True)
     assistant_ids = current_config.get("assistant_ids", [])
@@ -424,12 +438,12 @@ def list_assistants(config):
         click.echo("No assistant IDs found in the configuration.")
 
 
-@config.command()
+@api_key.command()
 @click.argument("api_key")
 @click.option(
     "--config", default="vapi-config.json", help="Project-specific configuration file"
 )
-def add_apikey(api_key, config):
+def set(api_key, config):
     """Add an API key to the configuration"""
     current_config = load_config(config, project_specific=True)
     current_config["api_key"] = api_key
@@ -437,11 +451,11 @@ def add_apikey(api_key, config):
     click.echo("API key added successfully")
 
 
-@config.command()
+@api_key.command()
 @click.option(
     "--config", default="vapi-config.json", help="Project-specific configuration file"
 )
-def del_apikey(config):
+def clear(config):
     """Delete the API key from the configuration"""
     current_config = load_config(config, project_specific=True)
     if "api_key" in current_config:
