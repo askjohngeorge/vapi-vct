@@ -2,19 +2,36 @@ import click
 import os
 import json
 import requests
+import sys
 
 
 def load_config(config_file):
-    with open(config_file, "r") as f:
-        return json.load(f)
+    try:
+        with open(config_file, "r") as f:
+            return json.load(f)
+    except FileNotFoundError:
+        click.echo(f"Error: Configuration file '{config_file}' not found.", err=True)
+        sys.exit(1)
+    except json.JSONDecodeError:
+        click.echo(
+            f"Error: Invalid JSON in configuration file '{config_file}'.", err=True
+        )
+        sys.exit(1)
 
 
 def get_api_key(config):
-    return config.get("api_key")
+    api_key = config.get("api_key")
+    if not api_key:
+        click.echo("Error: API key not found in configuration file.", err=True)
+        sys.exit(1)
+    return api_key
 
 
 def get_assistant_ids(config):
-    return config.get("assistant_ids", [])
+    assistant_ids = config.get("assistant_ids", [])
+    if not assistant_ids:
+        click.echo("Warning: No assistant IDs found in configuration file.", err=True)
+    return assistant_ids
 
 
 # Fetching
@@ -274,6 +291,10 @@ def fetch(config: str, no_decompose: bool):
     api_key = get_api_key(config_data)
     assistant_ids = get_assistant_ids(config_data)
 
+    if not assistant_ids:
+        click.echo("No assistants to fetch. Exiting.", err=True)
+        return
+
     fetched_files = fetch_assistant_and_save(assistant_ids, api_key)
 
     if not no_decompose:
@@ -292,6 +313,10 @@ def update(config: str, no_recompose: bool):
     config_data = load_config(config)
     api_key = get_api_key(config_data)
     assistant_ids = get_assistant_ids(config_data)
+
+    if not assistant_ids:
+        click.echo("No assistants to update. Exiting.", err=True)
+        return
 
     files = [f"assistant_{assistant_id}.json" for assistant_id in assistant_ids]
 
