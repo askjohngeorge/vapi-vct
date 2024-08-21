@@ -28,16 +28,41 @@ Vapi-VCT is a Python-based CLI tool designed to facilitate version control and m
    pip install -r requirements.txt
    ```
 
+3. Make the `vapi-cli` script executable:
+   ```
+   chmod a+x vapi-cli
+   ```
+
+4. (Optional) Move the `vapi-cli` script to a directory in your PATH for easy access:
+   ```
+   sudo mv vapi-cli /usr/local/bin/
+   ```
+
 ## Configuration
 
-Create a `vapi-config.json` file in the root directory with the following structure:
+Vapi-VCT now supports a default configuration file and project-specific configuration files.
+
+### Default Configuration
+
+Create a default configuration file at `~/.vapi-vct/vapi-config.json` with your Vapi API key:
 
 ```json
 {
-  "api_key": "your_vapi_api_key_here",
+  "api_key": "your_vapi_api_key_here"
+}
+```
+
+### Project-Specific Configuration
+
+In your project directory, create a `vapi-config.json` file with the following structure:
+
+```json
+{
   "assistant_ids": ["assistant_id_1", "assistant_id_2", ...]
 }
 ```
+
+The tool will first load the default configuration (if it exists) and then merge it with the project-specific configuration, with the project-specific settings taking precedence. This allows you to keep your API key secure and separate from project files while still being able to override or add settings on a per-project basis.
 
 ## Usage
 
@@ -48,10 +73,10 @@ Vapi-VCT provides a command-line interface with two main commands: `fetch` and `
 To fetch assistants and optionally decompose them:
 
 ```
-python vapi-cli.py fetch [--config CONFIG_FILE] [--no-decompose]
+vapi-cli fetch [--config CONFIG_FILE] [--no-decompose]
 ```
 
-- `--config`: Specify a custom configuration file (default: `vapi-config.json`)
+- `--config`: Specify a custom configuration file (default: `vapi-config.json` in the current directory)
 - `--no-decompose`: Skip decomposing fetched assistants
 
 ### Updating Assistants
@@ -59,10 +84,10 @@ python vapi-cli.py fetch [--config CONFIG_FILE] [--no-decompose]
 To update assistants, optionally recomposing them first:
 
 ```
-python vapi-cli.py update [--config CONFIG_FILE] [--no-recompose]
+vapi-cli update [--config CONFIG_FILE] [--no-recompose]
 ```
 
-- `--config`: Specify a custom configuration file (default: `vapi-config.json`)
+- `--config`: Specify a custom configuration file (default: `vapi-config.json` in the current directory)
 - `--no-recompose`: Skip recomposing assistants before updating
 
 ## File Structure
