@@ -2,25 +2,27 @@ import click
 import os
 import json
 import requests
-from typing import List
+
+
+def load_config(config_file):
+    with open(config_file, "r") as f:
+        return json.load(f)
+
+
+def get_api_key(config):
+    return config.get("api_key")
+
+
+def get_assistant_ids(config):
+    return config.get("assistant_ids", [])
 
 
 # Fetching
-def read_assistant_ids(filename):
-    with open(filename, "r") as file:
-        return [line.strip() for line in file if line.strip()]
-
-
-def fetch_assistant_and_save(assistant_ids):
+def fetch_assistant_and_save(assistant_ids, api_key):
     filenames = []
     for assistant_id in assistant_ids:
         # API endpoint
         url = f"https://api.vapi.ai/assistant/{assistant_id}"
-
-        # Get the private API key from an environment variable
-        api_key = os.environ.get("VAPI_PRIVATE_API_KEY")
-        if not api_key:
-            raise ValueError("VAPI_PRIVATE_API_KEY environment variable is not set")
 
         # Headers
         headers = {
@@ -112,7 +114,9 @@ def decompose_assistant(file_path):
             )
 
     # Save the modified JSON
-    with open(os.path.join(directory, "config.json"), "w", encoding="utf-8") as f:
+    with open(
+        os.path.join(directory, "assistant-config.json"), "w", encoding="utf-8"
+    ) as f:
         json.dump(data, f, indent=2)
 
     print(f"Extraction complete for {file_path}. Files saved in directory: {directory}")
@@ -137,9 +141,9 @@ def read_file_if_exists(file_path):
 
 
 def recompose_assistant(directory):
-    config_path = os.path.join(directory, "config.json")
+    config_path = os.path.join(directory, "assistant-config.json")
     if not os.path.exists(config_path):
-        raise FileNotFoundError(f"config.json not found in {directory}")
+        raise FileNotFoundError(f"assistant-config.json not found in {directory}")
 
     with open(config_path, "r", encoding="utf-8") as f:
         data = json.load(f)
@@ -218,12 +222,8 @@ def load_assistant_data(filename):
         return None, None
 
 
-def update_assistant(assistant_id, assistant_data):
+def update_assistant(assistant_id, assistant_data, api_key):
     url = f"https://api.vapi.ai/assistant/{assistant_id}"
-    api_key = os.environ.get("VAPI_PRIVATE_API_KEY")
-    if not api_key:
-        raise ValueError("VAPI_PRIVATE_API_KEY environment variable is not set")
-
     headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
 
     try:
@@ -238,7 +238,7 @@ def update_assistant(assistant_id, assistant_data):
         return None
 
 
-def update_assistants_from_files(json_files):
+def update_assistants_from_files(json_files, api_key):
     for json_file in json_files:
         assistant_id, assistant_data = load_assistant_data(json_file)
         if assistant_id and assistant_data:
@@ -253,7 +253,7 @@ def update_assistants_from_files(json_files):
             for key in keys_to_remove:
                 assistant_data.pop(key, None)
 
-            update_assistant(assistant_id, assistant_data)
+            update_assistant(assistant_id, assistant_data, api_key)
 
 
 # CLI
@@ -264,16 +264,17 @@ def cli():
 
 
 @cli.command()
-@click.option(
-    "--ids-file", default="assistants.txt", help="File containing assistant IDs"
-)
+@click.option("--config", default="vapi-config.json", help="Configuration file")
 @click.option(
     "--no-decompose", is_flag=True, help="Skip decomposing fetched assistants"
 )
-def fetch(ids_file: str, no_decompose: bool):
+def fetch(config: str, no_decompose: bool):
     """Fetch Vapi assistants and decompose them (unless --no-decompose is specified)"""
-    assistant_ids = read_assistant_ids(ids_file)
-    fetched_files = fetch_assistant_and_save(assistant_ids)
+    config_data = load_config(config)
+    api_key = get_api_key(config_data)
+    assistant_ids = get_assistant_ids(config_data)
+
+    fetched_files = fetch_assistant_and_save(assistant_ids, api_key)
 
     if not no_decompose:
         for file in fetched_files:
@@ -282,23 +283,30 @@ def fetch(ids_file: str, no_decompose: bool):
 
 
 @cli.command()
-@click.argument("files", nargs=-1, type=click.Path(exists=True))
+@click.option("--config", default="vapi-config.json", help="Configuration file")
 @click.option(
     "--no-recompose", is_flag=True, help="Skip recomposing assistants before updating"
 )
-def update(files: List[str], no_recompose: bool):
+def update(config: str, no_recompose: bool):
     """Update Vapi assistants, recomposing them first (unless --no-recompose is specified)"""
+    config_data = load_config(config)
+    api_key = get_api_key(config_data)
+    assistant_ids = get_assistant_ids(config_data)
+
+    files = [f"assistant_{assistant_id}.json" for assistant_id in assistant_ids]
+
     if not no_recompose:
         recomposed_files = []
-        for file in files:
-            if os.path.isdir(file):
-                output_file = recompose_assistant(file)
+        for assistant_id in assistant_ids:
+            directory = assistant_id
+            if os.path.isdir(directory):
+                output_file = recompose_assistant(directory)
                 recomposed_files.append(output_file)
             else:
-                click.echo(f"Skipping {file} as it's not a directory")
+                click.echo(f"Skipping {directory} as it's not a directory")
         files = recomposed_files
 
-    update_assistants_from_files(files)
+    update_assistants_from_files(files, api_key)
 
 
 if __name__ == "__main__":
