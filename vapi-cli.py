@@ -267,13 +267,15 @@ def cli():
 @click.option(
     "--ids-file", default="assistants.txt", help="File containing assistant IDs"
 )
-@click.option("--decompose", is_flag=True, help="Decompose fetched assistants")
-def fetch(ids_file: str, decompose: bool):
-    """Fetch Vapi assistants and optionally decompose them"""
+@click.option(
+    "--no-decompose", is_flag=True, help="Skip decomposing fetched assistants"
+)
+def fetch(ids_file: str, no_decompose: bool):
+    """Fetch Vapi assistants and decompose them (unless --no-decompose is specified)"""
     assistant_ids = read_assistant_ids(ids_file)
     fetched_files = fetch_assistant_and_save(assistant_ids)
 
-    if decompose:
+    if not no_decompose:
         for file in fetched_files:
             decompose_assistant(file)
             click.echo(f"Decomposed {file}")
@@ -281,10 +283,12 @@ def fetch(ids_file: str, decompose: bool):
 
 @cli.command()
 @click.argument("files", nargs=-1, type=click.Path(exists=True))
-@click.option("--recompose", is_flag=True, help="Recompose assistants before updating")
-def update(files: List[str], recompose: bool):
-    """Update Vapi assistants, optionally recomposing them first"""
-    if recompose:
+@click.option(
+    "--no-recompose", is_flag=True, help="Skip recomposing assistants before updating"
+)
+def update(files: List[str], no_recompose: bool):
+    """Update Vapi assistants, recomposing them first (unless --no-recompose is specified)"""
+    if not no_recompose:
         recomposed_files = []
         for file in files:
             if os.path.isdir(file):
