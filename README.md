@@ -97,44 +97,23 @@ vapi-cli update [--config CONFIG_FILE] [--no-recompose]
 
 ### Managing Project-Specific Configurations
 
-#### Adding Assistant IDs
+#### Assistant Management
 
-To add one or more assistant IDs to the configuration:
-
-```
-vapi-cli add-assistant ASSISTANT_ID [ASSISTANT_ID ...] [--config CONFIG_FILE]
-```
-
-#### Deleting Assistant IDs
-
-To delete one or more assistant IDs from the configuration:
+To manage assistant IDs in the configuration:
 
 ```
-vapi-cli del-assistant ASSISTANT_ID [ASSISTANT_ID ...] [--config CONFIG_FILE]
+vapi-cli config assistants add ASSISTANT_ID [ASSISTANT_ID ...] [--config CONFIG_FILE]
+vapi-cli config assistants remove ASSISTANT_ID [ASSISTANT_ID ...] [--config CONFIG_FILE]
+vapi-cli config assistants list [--config CONFIG_FILE]
 ```
 
-#### Adding an API Key
+#### API Key Management
 
-To add an API key to the configuration:
-
-```
-vapi-cli add-apikey API_KEY [--config CONFIG_FILE]
-```
-
-#### Deleting the API Key
-
-To delete the API key from the configuration:
+To manage the API key in the configuration:
 
 ```
-vapi-cli del-apikey [--config CONFIG_FILE]
-```
-
-#### Listing Assistant IDs
-
-To list all assistant IDs in the configuration:
-
-```
-vapi-cli list-assistants [--config CONFIG_FILE]
+vapi-cli config api-key set API_KEY [--config CONFIG_FILE]
+vapi-cli config api-key clear [--config CONFIG_FILE]
 ```
 
 For all configuration management commands:
