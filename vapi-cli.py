@@ -6,17 +6,31 @@ import sys
 
 
 def load_config(config_file):
+    default_config_path = os.path.expanduser("~/.vapi-vct/vapi-config.json")
+    config = {}
+
+    # Load default config if it exists
+    if os.path.exists(default_config_path):
+        with open(default_config_path, "r") as f:
+            config = json.load(f)
+
+    # Load and merge project-specific config
     try:
         with open(config_file, "r") as f:
-            return json.load(f)
+            project_config = json.load(f)
+            config.update(project_config)
     except FileNotFoundError:
-        click.echo(f"Error: Configuration file '{config_file}' not found.", err=True)
-        sys.exit(1)
+        click.echo(
+            f"Warning: Project configuration file '{config_file}' not found. Using default configuration.",
+            err=True,
+        )
     except json.JSONDecodeError:
         click.echo(
             f"Error: Invalid JSON in configuration file '{config_file}'.", err=True
         )
         sys.exit(1)
+
+    return config
 
 
 def get_api_key(config):
@@ -281,7 +295,9 @@ def cli():
 
 
 @cli.command()
-@click.option("--config", default="vapi-config.json", help="Configuration file")
+@click.option(
+    "--config", default="vapi-config.json", help="Project-specific configuration file"
+)
 @click.option(
     "--no-decompose", is_flag=True, help="Skip decomposing fetched assistants"
 )
@@ -304,7 +320,9 @@ def fetch(config: str, no_decompose: bool):
 
 
 @cli.command()
-@click.option("--config", default="vapi-config.json", help="Configuration file")
+@click.option(
+    "--config", default="vapi-config.json", help="Project-specific configuration file"
+)
 @click.option(
     "--no-recompose", is_flag=True, help="Skip recomposing assistants before updating"
 )
