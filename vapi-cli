@@ -294,7 +294,7 @@ def cli():
     pass
 
 
-@click.group()
+@cli.group()
 def config():
     """Configuration commands"""
     pass
@@ -302,19 +302,14 @@ def config():
 
 @config.group()
 def assistants():
-    """Manage assistant IDs"""
+    """Assistant commands"""
     pass
 
 
 @config.group()
 def api_key():
-    """Manage API key"""
+    """API key commands"""
     pass
-
-
-cli.add_command(config)
-config.add_command(assistants)
-config.add_command(api_key)
 
 
 @cli.command()
@@ -408,14 +403,14 @@ def add(assistant_ids, config):
     "--config", default="vapi-config.json", help="Project-specific configuration file"
 )
 def remove(assistant_ids, config):
-    """Delete one or more assistant IDs from the configuration"""
+    """Remove one or more assistant IDs from the configuration"""
     current_config = load_config(config, project_specific=True)
     current_assistants = set(current_config.get("assistant_ids", []))
 
     for assistant_id in assistant_ids:
         if assistant_id in current_assistants:
             current_assistants.remove(assistant_id)
-            click.echo(f"Deleted assistant ID {assistant_id}")
+            click.echo(f"Removed assistant ID {assistant_id}")
         else:
             click.echo(f"Assistant ID {assistant_id} not found. Skipping.")
 
@@ -446,11 +441,11 @@ def list(config):
     "--config", default="vapi-config.json", help="Project-specific configuration file"
 )
 def set(api_key, config):
-    """Add an API key to the configuration"""
+    """Set an API key in the configuration"""
     current_config = load_config(config, project_specific=True)
     current_config["api_key"] = api_key
     update_config(config, current_config)
-    click.echo("API key added successfully")
+    click.echo("API key set successfully")
 
 
 @api_key.command()
@@ -458,12 +453,12 @@ def set(api_key, config):
     "--config", default="vapi-config.json", help="Project-specific configuration file"
 )
 def clear(config):
-    """Delete the API key from the configuration"""
+    """Clear the API key from the configuration"""
     current_config = load_config(config, project_specific=True)
     if "api_key" in current_config:
         del current_config["api_key"]
         update_config(config, current_config)
-        click.echo("API key deleted successfully")
+        click.echo("API key cleared successfully")
     else:
         click.echo("No API key found in the configuration")
 
