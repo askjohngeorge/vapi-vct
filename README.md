@@ -8,6 +8,7 @@ Vapi-VCT is a Python-based CLI tool designed to facilitate version control and m
 - **Decompose**: Extract components of a Vapi assistant JSON into separate files for easier version control.
 - **Recompose**: Rebuild a Vapi assistant JSON from its decomposed components.
 - **Update**: Push updated Vapi assistant configurations back to the Vapi API.
+- **Config Management**: Manage project-specific configurations directly from the command line.
 
 ## Prerequisites
 
@@ -18,29 +19,33 @@ Vapi-VCT is a Python-based CLI tool designed to facilitate version control and m
 ## Installation
 
 1. Clone this repository:
-   ```
-   git clone https://github.com/askjohngeorge/vapi-vct.git
-   cd vapi-vct
-   ```
+
+```
+git clone https://github.com/askjohngeorge/vapi-vct.git
+cd vapi-vct
+```
 
 2. Install required dependencies:
-   ```
-   pip install -r requirements.txt
-   ```
+
+```
+pip install -r requirements.txt
+```
 
 3. Make the `vapi-cli` script executable:
-   ```
-   chmod a+x vapi-cli
-   ```
+
+```
+chmod a+x vapi-cli
+```
 
 4. (Optional) Move the `vapi-cli` script to a directory in your PATH for easy access:
-   ```
-   sudo mv vapi-cli /usr/local/bin/
-   ```
+
+```
+sudo mv vapi-cli /usr/local/bin/
+```
 
 ## Configuration
 
-Vapi-VCT now supports a default configuration file and project-specific configuration files.
+Vapi-VCT supports a default configuration file and project-specific configuration files.
 
 ### Default Configuration
 
@@ -66,7 +71,7 @@ The tool will first load the default configuration (if it exists) and then merge
 
 ## Usage
 
-Vapi-VCT provides a command-line interface with two main commands: `fetch` and `update`.
+Vapi-VCT provides a command-line interface with several commands for managing assistants and configurations.
 
 ### Fetching Assistants
 
@@ -89,6 +94,43 @@ vapi-cli update [--config CONFIG_FILE] [--no-recompose]
 
 - `--config`: Specify a custom configuration file (default: `vapi-config.json` in the current directory)
 - `--no-recompose`: Skip recomposing assistants before updating
+
+### Managing Project-Specific Configurations
+
+#### Adding Assistant IDs
+
+To add one or more assistant IDs to the configuration:
+
+```
+vapi-cli add-assistant ASSISTANT_ID [ASSISTANT_ID ...] [--config CONFIG_FILE]
+```
+
+#### Deleting Assistant IDs
+
+To delete one or more assistant IDs from the configuration:
+
+```
+vapi-cli del-assistant ASSISTANT_ID [ASSISTANT_ID ...] [--config CONFIG_FILE]
+```
+
+#### Adding an API Key
+
+To add an API key to the configuration:
+
+```
+vapi-cli add-apikey API_KEY [--config CONFIG_FILE]
+```
+
+#### Deleting the API Key
+
+To delete the API key from the configuration:
+
+```
+vapi-cli del-apikey [--config CONFIG_FILE]
+```
+
+For all configuration management commands:
+- `--config`: Specify a custom configuration file (default: `vapi-config.json` in the current directory)
 
 ## File Structure
 
