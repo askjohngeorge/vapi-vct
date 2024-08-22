@@ -1,2 +1,2 @@
-vapi-config.json
-test/
+__pycache__
+*vapi_config.json
