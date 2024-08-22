@@ -88,6 +88,7 @@ def fetch_assistant_and_save(assistant_ids, api_key):
             filenames.append(filename)
         except requests.exceptions.RequestException as e:
             print(f"Error fetching assistant: {e}\nResponse details: {e.response.text}")
+            raise SystemExit(1)
     return filenames
 
 
@@ -299,7 +300,7 @@ def update_assistant(assistant_id, assistant_data, api_key):
         print(
             f"Error updating assistant {assistant_id}: {e}\nResponse details: {e.response.text}"
         )
-        return None
+        raise SystemExit(1)
 
 
 def update_assistants_from_files(json_files, api_key):
