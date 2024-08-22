@@ -456,7 +456,7 @@ def del_assistant(assistant_ids, config):
     update_config(config, current_config)
 
 
-@assistants.command(name="list")
+@assistants.command(name="ids")
 @click.option(
     "--config", default="vapi_config.json", help="Project-specific configuration file"
 )
@@ -471,6 +471,23 @@ def list_assistants(config):
             click.echo(f"- {assistant_id}")
     else:
         click.echo("No assistant IDs found in the configuration.")
+
+
+@assistants.command(name="dirs")
+@click.option(
+    "--config", default="vapi_config.json", help="Project-specific configuration file"
+)
+def list_assistant_directories(config):
+    """List all assistant ID to directory mappings in the configuration"""
+    current_config = load_config(config, project_specific=True)
+    assistant_directories = current_config.get("assistant_directories", {})
+
+    if assistant_directories:
+        click.echo("Assistant ID to directory mappings:")
+        for assistant_id, directory in assistant_directories.items():
+            click.echo(f"- {assistant_id} → {directory}")
+    else:
+        click.echo("No assistant ID to directory mappings found in the configuration.")
 
 
 @api_key.command(name="add")
