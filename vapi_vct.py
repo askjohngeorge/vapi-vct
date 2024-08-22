@@ -444,11 +444,15 @@ def del_assistant(assistant_ids, config):
     """Remove one or more assistant IDs from the configuration"""
     current_config = load_config(config, project_specific=True)
     current_assistants = set(current_config.get("assistant_ids", []))
+    assistant_directories = current_config.get("assistant_directories", {})
 
     for assistant_id in assistant_ids:
         if assistant_id in current_assistants:
             current_assistants.remove(assistant_id)
             click.echo(f"Removed assistant ID {assistant_id}")
+
+            if assistant_id in assistant_directories:
+                del assistant_directories[assistant_id]
         else:
             click.echo(f"Assistant ID {assistant_id} not found. Skipping.")
 
