@@ -31,7 +31,7 @@ cd vapi_vct
 pip install -r requirements.txt
 ```
 
-3. Make the `vapi_vct` script executable:
+3. (Optional) Make the `vapi_vct` script executable:
 
 ```
 chmod a+x vapi_vct.py
@@ -41,6 +41,22 @@ chmod a+x vapi_vct.py
 
 ```
 sudo ln -s /path/to/vapi_vct.py /usr/local/bin/vapi_vct
+```
+
+*Examples in following sections assume you followed all the steps and made the script executable, and created the symlink.* 
+
+Without the symlink created in step 4 you can use:
+
+```
+vapi_vct.py           # from the repo (if executable)
+/path/to/vapi_vct.py  # from anywhere
+```
+
+Without making the script executable in step 3 you can use:
+
+```
+python vapi_vct.py           # from the repo
+python /path/to/vapi_vct.py  # from anywhere
 ```
 
 ## Configuration
@@ -77,7 +93,7 @@ The tool will first load the default configuration (if it exists) and then merge
 
 ## Usage
 
-Vapi-VCT provides a command-line interface with several commands for managing assistants and configurations. (Examples below assume you created the symlink from step 4 of the installation section).
+Vapi-VCT provides a command-line interface with several commands for managing assistants and configurations.
 
 ### Fetching Assistants
 
