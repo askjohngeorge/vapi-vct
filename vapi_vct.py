@@ -26,7 +26,7 @@ def load_config(config_file, project_specific=False):
             config.update(project_config)
     except FileNotFoundError:
         click.echo(
-            f"Warning: Project configuration file '{config_file}' not found. Using default configuration.",
+            f"Warning: Project configuration file '{config_file}' not found.{' Using default configuration.' if not project_specific else ''}",
             err=True,
         )
     except json.JSONDecodeError:
@@ -376,6 +376,7 @@ def update_config(config_file, updated_config):
 
 
 # Config commands
+@assistants.command()
 @click.argument("assistant_ids", nargs=-1, required=True)
 @click.option(
     "--config", default="vapi_config.json", help="Project-specific configuration file"
