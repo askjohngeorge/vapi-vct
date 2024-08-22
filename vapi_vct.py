@@ -105,6 +105,16 @@ def decompose_assistant(file_path):
     if not os.path.exists(directory):
         os.makedirs(directory)
 
+    # Extract secrets
+    secrets = {
+        key: data.pop(key)
+        for key in ["id", "orgId", "createdAt", "updatedAt", "isServerUrlSecretSet"]
+        if key in data
+    }
+
+    with open(os.path.join(directory, "secrets.json"), "w", encoding="utf-8") as f:
+        json.dump(secrets, f, indent=2)
+
     # Extract system prompt
     system_message = next(
         (msg for msg in data["model"]["messages"] if msg["role"] == "system"), None
@@ -180,11 +190,19 @@ def read_file_if_exists(file_path):
 
 def recompose_assistant(directory):
     config_path = os.path.join(directory, "assistant_config.json")
+    secrets_path = os.path.join(directory, "secrets.json")
+
     if not os.path.exists(config_path):
         raise FileNotFoundError(f"assistant_config.json not found in {directory}")
 
     with open(config_path, "r", encoding="utf-8") as f:
         data = json.load(f)
+
+    # Reincorporate secrets
+    if os.path.exists(secrets_path):
+        with open(secrets_path, "r", encoding="utf-8") as f:
+            secrets = json.load(f)
+        data.update(secrets)
 
     # Recompose system prompt
     system_message = next(
