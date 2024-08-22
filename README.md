@@ -31,16 +31,16 @@ cd vapi-vct
 pip install -r requirements.txt
 ```
 
-3. Make the `vapi-cli` script executable:
+3. Make the `vapi-vct` script executable:
 
 ```
-chmod a+x vapi-cli
+chmod a+x vapi-vct
 ```
 
-4. (Optional) Move the `vapi-cli` script to a directory in your PATH for easy access:
+4. (Optional) Move the `vapi-vct` script to a directory in your PATH for easy access:
 
 ```
-sudo mv vapi-cli /usr/local/bin/
+sudo mv vapi-vct /usr/local/bin/
 ```
 
 ## Configuration
@@ -78,7 +78,7 @@ Vapi-VCT provides a command-line interface with several commands for managing as
 To fetch assistants and optionally decompose them:
 
 ```
-vapi-cli fetch [--config CONFIG_FILE] [--no-decompose]
+vapi-vct fetch [--config CONFIG_FILE] [--no-decompose]
 ```
 
 - `--config`: Specify a custom configuration file (default: `vapi-config.json` in the current directory)
@@ -89,7 +89,7 @@ vapi-cli fetch [--config CONFIG_FILE] [--no-decompose]
 To update assistants, optionally recomposing them first:
 
 ```
-vapi-cli update [--config CONFIG_FILE] [--no-recompose]
+vapi-vct update [--config CONFIG_FILE] [--no-recompose]
 ```
 
 - `--config`: Specify a custom configuration file (default: `vapi-config.json` in the current directory)
@@ -102,9 +102,9 @@ vapi-cli update [--config CONFIG_FILE] [--no-recompose]
 To manage assistant IDs in the configuration:
 
 ```
-vapi-cli config assistants add ASSISTANT_ID [ASSISTANT_ID ...] [--config CONFIG_FILE]
-vapi-cli config assistants remove ASSISTANT_ID [ASSISTANT_ID ...] [--config CONFIG_FILE]
-vapi-cli config assistants list [--config CONFIG_FILE]
+vapi-vct config assistants add ASSISTANT_ID [ASSISTANT_ID ...] [--config CONFIG_FILE]
+vapi-vct config assistants remove ASSISTANT_ID [ASSISTANT_ID ...] [--config CONFIG_FILE]
+vapi-vct config assistants list [--config CONFIG_FILE]
 ```
 
 #### API Key Management
@@ -112,8 +112,8 @@ vapi-cli config assistants list [--config CONFIG_FILE]
 To manage the API key in the configuration:
 
 ```
-vapi-cli config api-key set API_KEY [--config CONFIG_FILE]
-vapi-cli config api-key clear [--config CONFIG_FILE]
+vapi-vct config api-key set API_KEY [--config CONFIG_FILE]
+vapi-vct config api-key clear [--config CONFIG_FILE]
 ```
 
 For all configuration management commands:
