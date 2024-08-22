@@ -79,7 +79,8 @@ def fetch_assistant_and_save(assistant_ids, api_key):
             assistant_data = response.json()
 
             # Save to a local JSON file
-            filename = f"fetched_{assistant_id}.json"
+            assistant_name = assistant_data.get("name", assistant_id)
+            filename = f"{sanitize_assistant_name(assistant_name)}_fetched.json"
             with open(filename, "w") as f:
                 json.dump(assistant_data, f, indent=2)
 
@@ -99,7 +100,7 @@ def extract_and_save(content, filename, directory):
     return f"file:///{filename}"
 
 
-def sanitize_folder_name(name):
+def sanitize_assistant_name(name):
     return re.sub(r"\s+", "_", name.lower())
 
 
@@ -108,7 +109,7 @@ def decompose_assistant(file_path, config_file):
         data = json.load(f)
 
     assistant_id = data["id"]
-    assistant_name = sanitize_folder_name(data.get("name", assistant_id))
+    assistant_name = sanitize_assistant_name(data.get("name", assistant_id))
     directory = assistant_name
 
     # Update the configuration with the new mapping
@@ -258,7 +259,7 @@ def recompose_assistant(directory):
 
     # Save the recomposed JSON
     directory_name = os.path.basename(os.path.normpath(directory))
-    output_filename = f"recomposed_{directory_name}.json"
+    output_filename = f"{directory_name}_recomposed.json"
 
     with open(output_filename, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=2)
@@ -398,7 +399,7 @@ def update(config: str, no_recompose: bool):
     if no_recompose:
         for assistant_id in assistant_ids:
             directory_name = assistant_directories.get(assistant_id, assistant_id)
-            files.append(f"recomposed_{directory_name}.json")
+            files.append(f"{directory_name}_recomposed.json")
     else:
         for assistant_id in assistant_ids:
             directory_name = assistant_directories.get(assistant_id, assistant_id)
