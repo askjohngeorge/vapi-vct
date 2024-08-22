@@ -5,6 +5,7 @@ import os
 import json
 import requests
 import sys
+import re
 
 
 # Helpers
@@ -34,6 +35,9 @@ def load_config(config_file, project_specific=False):
             f"Error: Invalid JSON in configuration file '{config_file}'.", err=True
         )
         sys.exit(1)
+
+    if "assistant_directories" not in config:
+        config["assistant_directories"] = {}
 
     return config
 
@@ -95,12 +99,22 @@ def extract_and_save(content, filename, directory):
     return f"file:///{filename}"
 
 
-def decompose_assistant(file_path):
+def sanitize_folder_name(name):
+    return re.sub(r"\s+", "_", name.lower())
+
+
+def decompose_assistant(file_path, config_file):
     with open(file_path, "r", encoding="utf-8") as f:
         data = json.load(f)
 
     assistant_id = data["id"]
-    directory = assistant_id
+    assistant_name = sanitize_folder_name(data.get("name", assistant_id))
+    directory = assistant_name
+
+    # Update the configuration with the new mapping
+    config = load_config(config_file, project_specific=True)
+    config["assistant_directories"][assistant_id] = directory
+    update_config(config_file, config)
 
     if not os.path.exists(directory):
         os.makedirs(directory)
@@ -355,7 +369,7 @@ def fetch(config: str, no_decompose: bool):
 
     if not no_decompose:
         for file in fetched_files:
-            decompose_assistant(file)
+            decompose_assistant(file, config)
             click.echo(f"Decomposed {file}")
 
 
@@ -374,6 +388,7 @@ def update(config: str, no_recompose: bool):
     except SystemExit:
         raise click.Abort()
     assistant_ids = get_assistant_ids(config_data)
+    assistant_directories = config_data.get("assistant_directories", {})
 
     if not assistant_ids:
         click.echo("No assistants to update. Exiting.", err=True)
@@ -384,7 +399,7 @@ def update(config: str, no_recompose: bool):
     if not no_recompose:
         recomposed_files = []
         for assistant_id in assistant_ids:
-            directory = assistant_id
+            directory = assistant_directories.get(assistant_id, assistant_id)
             if os.path.isdir(directory):
                 output_file = recompose_assistant(directory)
                 recomposed_files.append(output_file)
