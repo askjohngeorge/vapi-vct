@@ -59,7 +59,13 @@ Create a default configuration file at `~/.vapi_vct/vapi_config.json` with your 
 
 ### Project-Specific Configuration
 
-In your project directory, create a `vapi_config.json` file with the following structure:
+You can create and manage your local project-specific configuration using the command-line tools. For example, to add an assistant ID to the configuration:
+
+```
+vapi_vct config assistants add ASSISTANT_ID_1 [ASSISTANT_ID_2 ...]
+```
+
+This will create a `vapi_config.json` file in your project directory with the following structure:
 
 ```json
 {
@@ -104,7 +110,8 @@ To manage assistant IDs in the configuration:
 ```
 vapi_vct config assistants add ASSISTANT_ID [ASSISTANT_ID ...] [--config CONFIG_FILE]
 vapi_vct config assistants del ASSISTANT_ID [ASSISTANT_ID ...] [--config CONFIG_FILE]
-vapi_vct config assistants list [--config CONFIG_FILE]
+vapi_vct config assistants ids [--config CONFIG_FILE]
+vapi_vct config assistants dirs [--config CONFIG_FILE]
 ```
 
 #### API Key Management
@@ -121,17 +128,24 @@ For all configuration management commands:
 
 ## File Structure
 
-After fetching and decomposing, each assistant will have its own directory:
+After fetching and decomposing, each assistant will have its own directory named after the assistant's name:
 
 ```
-assistant_id/
+assistant_name/
 ├── assistant_config.json
-├── system_prompt.txt
 ├── first_message.txt
-├── summary_prompt.txt
+├── secrets.json
 ├── structured_data_prompt.txt
 ├── structured_data_schema.json
 └── success_evaluation_prompt.txt
+├── summary_prompt.txt
+├── system_prompt.txt
+```
+
+The `secrets.json` file contains sensitive information that should be excluded from version control. You can easily exclude it by adding the following line to your `.gitignore` file:
+
+```
+**/secrets.json
 ```
 
 ## Contributing
