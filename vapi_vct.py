@@ -79,7 +79,7 @@ def fetch_assistant_and_save(assistant_ids, api_key):
             assistant_data = response.json()
 
             # Save to a local JSON file
-            filename = f"assistant_{assistant_id}.json"
+            filename = f"fetched_{assistant_id}.json"
             with open(filename, "w") as f:
                 json.dump(assistant_data, f, indent=2)
 
@@ -258,7 +258,7 @@ def recompose_assistant(directory):
 
     # Save the recomposed JSON
     directory_name = os.path.basename(os.path.normpath(directory))
-    output_filename = f"assistant_{directory_name}.json"
+    output_filename = f"recomposed_{directory_name}.json"
 
     with open(output_filename, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=2)
@@ -394,18 +394,19 @@ def update(config: str, no_recompose: bool):
         click.echo("No assistants to update. Exiting.", err=True)
         raise click.Abort()
 
-    files = [f"assistant_{assistant_id}.json" for assistant_id in assistant_ids]
-
-    if not no_recompose:
-        recomposed_files = []
+    files = []
+    if no_recompose:
         for assistant_id in assistant_ids:
-            directory = assistant_directories.get(assistant_id, assistant_id)
-            if os.path.isdir(directory):
-                output_file = recompose_assistant(directory)
-                recomposed_files.append(output_file)
+            directory_name = assistant_directories.get(assistant_id, assistant_id)
+            files.append(f"recomposed_{directory_name}.json")
+    else:
+        for assistant_id in assistant_ids:
+            directory_name = assistant_directories.get(assistant_id, assistant_id)
+            if os.path.isdir(directory_name):
+                output_file = recompose_assistant(directory_name)
+                files.append(output_file)
             else:
-                click.echo(f"Skipping {directory} as it's not a directory")
-        files = recomposed_files
+                click.echo(f"Skipping {directory_name} as it's not a directory")
 
     update_assistants_from_files(files, api_key)
 
