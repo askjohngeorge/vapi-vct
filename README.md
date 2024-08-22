@@ -150,7 +150,7 @@ After fetching and decomposing, each assistant will have its own directory named
 assistant_name/
 ├── assistant_config.json
 ├── first_message.txt
-├── secrets.json
+├── metadata.json
 ├── structured_data_prompt.txt
 ├── structured_data_schema.json
 └── success_evaluation_prompt.txt
@@ -158,10 +158,10 @@ assistant_name/
 ├── system_prompt.txt
 ```
 
-The `secrets.json` file contains sensitive information that should be excluded from version control. You can easily exclude it by adding the following line to your `.gitignore` file:
+The `metadata.json` file contains assistant-specific information that you may wish to exclude from version control. You can easily exclude it by adding the following line to your `.gitignore` file:
 
 ```
-**/secrets.json
+**/metadata.json
 ```
 
 ## Contributing
