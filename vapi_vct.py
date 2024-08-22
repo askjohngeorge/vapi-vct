@@ -12,7 +12,7 @@ def load_config(config_file, project_specific=False):
     config = {}
 
     if not project_specific:
-        default_config_path = os.path.expanduser("~/.vapi-vct/vapi-config.json")
+        default_config_path = os.path.expanduser("~/.vapi_vct/vapi_config.json")
 
         # Load default config if it exists
         if os.path.exists(default_config_path):
@@ -111,13 +111,13 @@ def decompose_assistant(file_path):
     )
     if system_message:
         data["model"]["messages"][0]["content"] = extract_and_save(
-            system_message["content"], "system-prompt.txt", directory
+            system_message["content"], "system_prompt.txt", directory
         )
 
     # Extract firstMessage
     if "firstMessage" in data:
         data["firstMessage"] = extract_and_save(
-            data["firstMessage"], "first-message.txt", directory
+            data["firstMessage"], "first_message.txt", directory
         )
 
     # Extract analysisPlan components
@@ -126,34 +126,34 @@ def decompose_assistant(file_path):
 
         if "summaryPrompt" in analysis_plan:
             analysis_plan["summaryPrompt"] = extract_and_save(
-                analysis_plan["summaryPrompt"], "summary-prompt.txt", directory
+                analysis_plan["summaryPrompt"], "summary_prompt.txt", directory
             )
 
         if "structuredDataPrompt" in analysis_plan:
             analysis_plan["structuredDataPrompt"] = extract_and_save(
                 analysis_plan["structuredDataPrompt"],
-                "structured-data-prompt.txt",
+                "structured_data_prompt.txt",
                 directory,
             )
 
         if "structuredDataSchema" in analysis_plan:
-            schema_path = os.path.join(directory, "structured-data-schema.json")
+            schema_path = os.path.join(directory, "structured_data_schema.json")
             with open(schema_path, "w", encoding="utf-8") as f:
                 json.dump(analysis_plan["structuredDataSchema"], f, indent=2)
             analysis_plan["structuredDataSchema"] = (
-                "file:///structured-data-schema.json"
+                "file:///structured_data_schema.json"
             )
 
         if "successEvaluationPrompt" in analysis_plan:
             analysis_plan["successEvaluationPrompt"] = extract_and_save(
                 analysis_plan["successEvaluationPrompt"],
-                "success-evaluation-prompt.txt",
+                "success_evaluation_prompt.txt",
                 directory,
             )
 
     # Save the modified JSON
     with open(
-        os.path.join(directory, "assistant-config.json"), "w", encoding="utf-8"
+        os.path.join(directory, "assistant_config.json"), "w", encoding="utf-8"
     ) as f:
         json.dump(data, f, indent=2)
 
@@ -179,9 +179,9 @@ def read_file_if_exists(file_path):
 
 
 def recompose_assistant(directory):
-    config_path = os.path.join(directory, "assistant-config.json")
+    config_path = os.path.join(directory, "assistant_config.json")
     if not os.path.exists(config_path):
-        raise FileNotFoundError(f"assistant-config.json not found in {directory}")
+        raise FileNotFoundError(f"assistant_config.json not found in {directory}")
 
     with open(config_path, "r", encoding="utf-8") as f:
         data = json.load(f)
@@ -314,7 +314,7 @@ def api_key():
 
 @cli.command()
 @click.option(
-    "--config", default="vapi-config.json", help="Project-specific configuration file"
+    "--config", default="vapi_config.json", help="Project-specific configuration file"
 )
 @click.option(
     "--no-decompose", is_flag=True, help="Skip decomposing fetched assistants"
@@ -339,7 +339,7 @@ def fetch(config: str, no_decompose: bool):
 
 @cli.command()
 @click.option(
-    "--config", default="vapi-config.json", help="Project-specific configuration file"
+    "--config", default="vapi_config.json", help="Project-specific configuration file"
 )
 @click.option(
     "--no-recompose", is_flag=True, help="Skip recomposing assistants before updating"
@@ -376,23 +376,20 @@ def update_config(config_file, updated_config):
 
 
 # Config commands
-@assistants.command()
 @click.argument("assistant_ids", nargs=-1, required=True)
 @click.option(
-    "--config", default="vapi-config.json", help="Project-specific configuration file"
+    "--config", default="vapi_config.json", help="Project-specific configuration file"
 )
 def add(assistant_ids, config):
     """Add one or more assistant IDs to the configuration"""
     current_config = load_config(config, project_specific=True)
     current_assistants = set(current_config.get("assistant_ids", []))
-
     for assistant_id in assistant_ids:
         if assistant_id in current_assistants:
             click.echo(f"Assistant ID {assistant_id} already exists. Skipping.")
         else:
             current_assistants.add(assistant_id)
             click.echo(f"Added assistant ID {assistant_id}")
-
     current_config["assistant_ids"] = list(current_assistants)
     update_config(config, current_config)
 
@@ -400,7 +397,7 @@ def add(assistant_ids, config):
 @assistants.command()
 @click.argument("assistant_ids", nargs=-1, required=True)
 @click.option(
-    "--config", default="vapi-config.json", help="Project-specific configuration file"
+    "--config", default="vapi_config.json", help="Project-specific configuration file"
 )
 def remove(assistant_ids, config):
     """Remove one or more assistant IDs from the configuration"""
@@ -420,7 +417,7 @@ def remove(assistant_ids, config):
 
 @assistants.command()
 @click.option(
-    "--config", default="vapi-config.json", help="Project-specific configuration file"
+    "--config", default="vapi_config.json", help="Project-specific configuration file"
 )
 def list(config):
     """List all assistant IDs in the configuration"""
@@ -438,7 +435,7 @@ def list(config):
 @api_key.command()
 @click.argument("api_key")
 @click.option(
-    "--config", default="vapi-config.json", help="Project-specific configuration file"
+    "--config", default="vapi_config.json", help="Project-specific configuration file"
 )
 def set(api_key, config):
     """Set an API key in the configuration"""
@@ -450,7 +447,7 @@ def set(api_key, config):
 
 @api_key.command()
 @click.option(
-    "--config", default="vapi-config.json", help="Project-specific configuration file"
+    "--config", default="vapi_config.json", help="Project-specific configuration file"
 )
 def clear(config):
     """Clear the API key from the configuration"""

@@ -21,8 +21,8 @@ Vapi-VCT is a Python-based CLI tool designed to facilitate version control and m
 1. Clone this repository:
 
 ```
-git clone https://github.com/askjohngeorge/vapi-vct.git
-cd vapi-vct
+git clone https://github.com/askjohngeorge/vapi_vct.git
+cd vapi_vct
 ```
 
 2. Install required dependencies:
@@ -31,16 +31,16 @@ cd vapi-vct
 pip install -r requirements.txt
 ```
 
-3. Make the `vapi-vct` script executable:
+3. Make the `vapi_vct` script executable:
 
 ```
-chmod a+x vapi-vct
+chmod a+x vapi_vct
 ```
 
-4. (Optional) Move the `vapi-vct` script to a directory in your PATH for easy access:
+4. (Optional) Move the `vapi_vct` script to a directory in your PATH for easy access:
 
 ```
-sudo mv vapi-vct /usr/local/bin/
+sudo mv vapi_vct /usr/local/bin/
 ```
 
 ## Configuration
@@ -49,7 +49,7 @@ Vapi-VCT supports a default configuration file and project-specific configuratio
 
 ### Default Configuration
 
-Create a default configuration file at `~/.vapi-vct/vapi-config.json` with your Vapi API key:
+Create a default configuration file at `~/.vapi_vct/vapi_config.json` with your Vapi API key:
 
 ```json
 {
@@ -59,7 +59,7 @@ Create a default configuration file at `~/.vapi-vct/vapi-config.json` with your 
 
 ### Project-Specific Configuration
 
-In your project directory, create a `vapi-config.json` file with the following structure:
+In your project directory, create a `vapi_config.json` file with the following structure:
 
 ```json
 {
@@ -78,10 +78,10 @@ Vapi-VCT provides a command-line interface with several commands for managing as
 To fetch assistants and optionally decompose them:
 
 ```
-vapi-vct fetch [--config CONFIG_FILE] [--no-decompose]
+vapi_vct fetch [--config CONFIG_FILE] [--no-decompose]
 ```
 
-- `--config`: Specify a custom configuration file (default: `vapi-config.json` in the current directory)
+- `--config`: Specify a custom configuration file (default: `vapi_config.json` in the current directory)
 - `--no-decompose`: Skip decomposing fetched assistants
 
 ### Updating Assistants
@@ -89,10 +89,10 @@ vapi-vct fetch [--config CONFIG_FILE] [--no-decompose]
 To update assistants, optionally recomposing them first:
 
 ```
-vapi-vct update [--config CONFIG_FILE] [--no-recompose]
+vapi_vct update [--config CONFIG_FILE] [--no-recompose]
 ```
 
-- `--config`: Specify a custom configuration file (default: `vapi-config.json` in the current directory)
+- `--config`: Specify a custom configuration file (default: `vapi_config.json` in the current directory)
 - `--no-recompose`: Skip recomposing assistants before updating
 
 ### Managing Project-Specific Configurations
@@ -102,9 +102,9 @@ vapi-vct update [--config CONFIG_FILE] [--no-recompose]
 To manage assistant IDs in the configuration:
 
 ```
-vapi-vct config assistants add ASSISTANT_ID [ASSISTANT_ID ...] [--config CONFIG_FILE]
-vapi-vct config assistants remove ASSISTANT_ID [ASSISTANT_ID ...] [--config CONFIG_FILE]
-vapi-vct config assistants list [--config CONFIG_FILE]
+vapi_vct config assistants add ASSISTANT_ID [ASSISTANT_ID ...] [--config CONFIG_FILE]
+vapi_vct config assistants remove ASSISTANT_ID [ASSISTANT_ID ...] [--config CONFIG_FILE]
+vapi_vct config assistants list [--config CONFIG_FILE]
 ```
 
 #### API Key Management
@@ -112,12 +112,12 @@ vapi-vct config assistants list [--config CONFIG_FILE]
 To manage the API key in the configuration:
 
 ```
-vapi-vct config api-key set API_KEY [--config CONFIG_FILE]
-vapi-vct config api-key clear [--config CONFIG_FILE]
+vapi_vct config api_key set API_KEY [--config CONFIG_FILE]
+vapi_vct config api_key clear [--config CONFIG_FILE]
 ```
 
 For all configuration management commands:
-- `--config`: Specify a custom configuration file (default: `vapi-config.json` in the current directory)
+- `--config`: Specify a custom configuration file (default: `vapi_config.json` in the current directory)
 
 ## File Structure
 
@@ -125,13 +125,13 @@ After fetching and decomposing, each assistant will have its own directory:
 
 ```
 assistant_id/
-├── assistant-config.json
-├── system-prompt.txt
-├── first-message.txt
-├── summary-prompt.txt
-├── structured-data-prompt.txt
-├── structured-data-schema.json
-└── success-evaluation-prompt.txt
+├── assistant_config.json
+├── system_prompt.txt
+├── first_message.txt
+├── summary_prompt.txt
+├── structured_data_prompt.txt
+├── structured_data_schema.json
+└── success_evaluation_prompt.txt
 ```
 
 ## Contributing
