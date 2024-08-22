@@ -42,7 +42,7 @@ def get_api_key(config):
     api_key = config.get("api_key")
     if not api_key:
         click.echo("Error: API key not found in configuration file.", err=True)
-        sys.exit(1)
+        raise SystemExit(1)
     return api_key
 
 
@@ -322,12 +322,16 @@ def api_key():
 def fetch(config: str, no_decompose: bool):
     """Fetch and optionally decompose Vapi assistants"""
     config_data = load_config(config)
-    api_key = get_api_key(config_data)
+    try:
+        api_key = get_api_key(config_data)
+    except SystemExit:
+        raise click.Abort()
+
     assistant_ids = get_assistant_ids(config_data)
 
     if not assistant_ids:
         click.echo("No assistants to fetch. Exiting.", err=True)
-        return
+        raise click.Abort()
 
     fetched_files = fetch_assistant_and_save(assistant_ids, api_key)
 
@@ -347,12 +351,15 @@ def fetch(config: str, no_decompose: bool):
 def update(config: str, no_recompose: bool):
     """Update Vapi assistants, optionally recomposing first"""
     config_data = load_config(config)
-    api_key = get_api_key(config_data)
+    try:
+        api_key = get_api_key(config_data)
+    except SystemExit:
+        raise click.Abort()
     assistant_ids = get_assistant_ids(config_data)
 
     if not assistant_ids:
         click.echo("No assistants to update. Exiting.", err=True)
-        return
+        raise click.Abort()
 
     files = [f"assistant_{assistant_id}.json" for assistant_id in assistant_ids]
 
