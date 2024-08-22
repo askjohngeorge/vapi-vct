@@ -103,7 +103,7 @@ To manage assistant IDs in the configuration:
 
 ```
 vapi_vct config assistants add ASSISTANT_ID [ASSISTANT_ID ...] [--config CONFIG_FILE]
-vapi_vct config assistants remove ASSISTANT_ID [ASSISTANT_ID ...] [--config CONFIG_FILE]
+vapi_vct config assistants del ASSISTANT_ID [ASSISTANT_ID ...] [--config CONFIG_FILE]
 vapi_vct config assistants list [--config CONFIG_FILE]
 ```
 
@@ -112,8 +112,8 @@ vapi_vct config assistants list [--config CONFIG_FILE]
 To manage the API key in the configuration:
 
 ```
-vapi_vct config api_key set API_KEY [--config CONFIG_FILE]
-vapi_vct config api_key clear [--config CONFIG_FILE]
+vapi_vct config api_key add API_KEY [--config CONFIG_FILE]
+vapi_vct config api_key del [--config CONFIG_FILE]
 ```
 
 For all configuration management commands:
