@@ -79,8 +79,10 @@ def fetch_assistant_and_save(assistant_ids, api_key):
             assistant_data = response.json()
 
             # Save to a local JSON file
-            assistant_name = assistant_data.get("name", assistant_id)
-            filename = f"{sanitize_assistant_name(assistant_name)}_fetched.json"
+            assistant_name = sanitize_assistant_name(
+                assistant_data.get("name", assistant_id)
+            )
+            filename = f"{assistant_name}--{assistant_id[:8]}_fetched.json"
             with open(filename, "w") as f:
                 json.dump(assistant_data, f, indent=2)
 
@@ -102,7 +104,7 @@ def extract_and_save(content, filename, directory):
 
 
 def sanitize_assistant_name(name):
-    return re.sub(r"\s+", "_", name.lower())
+    return re.sub(r"[^\w\-]", "_", name.lower())
 
 
 def decompose_assistant(file_path, config_file):
@@ -111,7 +113,7 @@ def decompose_assistant(file_path, config_file):
 
     assistant_id = data["id"]
     assistant_name = sanitize_assistant_name(data.get("name", assistant_id))
-    directory = assistant_name
+    directory = f"{assistant_name}--{assistant_id[:8]}"
 
     # Update the configuration with the new mapping
     config = load_config(config_file, project_specific=True)

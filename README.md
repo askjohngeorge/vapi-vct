@@ -147,7 +147,7 @@ For all configuration management commands:
 After fetching and decomposing, each assistant will have its own directory named after the assistant's name:
 
 ```
-assistant_name/
+assistant_name--assistant_id[:8]/
 ├── assistant_config.json
 ├── first_message.txt
 ├── metadata.json

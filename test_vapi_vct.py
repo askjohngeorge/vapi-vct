@@ -209,8 +209,8 @@ class TestVapiVCTFetchUpdate(unittest.TestCase):
     def tearDown(self):
         if os.path.exists(self.config_file):
             os.remove(self.config_file)
-        if os.path.exists(f"assistant_{self.mock_assistant_id}.json"):
-            os.remove(f"assistant_{self.mock_assistant_id}.json")
+        if os.path.exists(f"assistant_{self.mock_assistant_id[:8]}_fetched.json"):
+            os.remove(f"assistant_{self.mock_assistant_id[:8]}_fetched.json")
 
     def create_test_config(self):
         config = {
@@ -264,7 +264,8 @@ class TestVapiVCTFetchUpdate(unittest.TestCase):
 
         self.assertEqual(result.exit_code, 0)
         self.assertIn(
-            f"Assistant data saved to mock_assistant_fetched.json", result.output
+            f"Assistant data saved to mock_assistant--{self.mock_assistant_id[:8]}_fetched.json",
+            result.output,
         )
         mock_decompose.assert_called_once()
 
@@ -341,12 +342,9 @@ class TestVapiVCTFetchUpdate(unittest.TestCase):
         with patch("builtins.open", mock_open()) as mock_file:
             result = self.runner.invoke(cli, ["fetch", "--config", self.config_file])
 
-        print(f"Exit code: {result.exit_code}")
-        print(f"Output: {result.output}")
-
         self.assertEqual(result.exit_code, 0)
         self.assertIn(
-            "Assistant data saved to project_specific_config_assistant_fetched.json",
+            f"Assistant data saved to project_specific_config_assistant--{self.mock_assistant_id[:8]}_fetched.json",
             result.output,
         )
         mock_load_config.assert_called_once_with(self.config_file)
