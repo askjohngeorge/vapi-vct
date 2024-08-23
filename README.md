@@ -153,9 +153,9 @@ assistant_name--assistant_id[:8]/
 ├── metadata.json
 ├── structured_data_prompt.txt
 ├── structured_data_schema.json
-└── success_evaluation_prompt.txt
+├── success_evaluation_prompt.txt
 ├── summary_prompt.txt
-├── system_prompt.txt
+└── system_prompt.txt
 ```
 
 The `metadata.json` file contains assistant-specific information that you may wish to exclude from version control. You can easily exclude it by adding the following line to your `.gitignore` file:
