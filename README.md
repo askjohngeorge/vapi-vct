@@ -43,7 +43,7 @@ chmod a+x vapi_vct.py
 sudo ln -s /path/to/vapi_vct.py /usr/local/bin/vapi_vct
 ```
 
-*Examples in following sections assume you followed all the steps and made the script executable, and created the symlink.* 
+*Examples in following sections assume you followed **all** these steps.*
 
 Without the symlink created in step 4 you can use:
 
