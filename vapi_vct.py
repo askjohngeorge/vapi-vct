@@ -6,6 +6,8 @@ import json
 import requests
 import sys
 import re
+import random
+import string
 
 
 # Helpers
@@ -413,6 +415,78 @@ def update(config: str, no_recompose: bool):
                 click.echo(f"Skipping {directory_name} as it's not a directory")
 
     update_assistants_from_files(files, api_key)
+
+
+@cli.command(name="publish")
+@click.option(
+    "--config", default="vapi_config.json", help="Project-specific configuration file"
+)
+@click.argument(
+    "directory", type=click.Path(exists=True, file_okay=False, dir_okay=True)
+)
+def publish(config: str, directory: str):
+    """Publish a new assistant from a decomposed directory"""
+    config_data = load_config(config)
+    try:
+        api_key = get_api_key(config_data)
+    except SystemExit:
+        raise click.Abort()
+
+    # Recompose the assistant
+    recomposed_file = recompose_assistant(directory)
+
+    # Load the recomposed data
+    with open(recomposed_file, "r", encoding="utf-8") as f:
+        assistant_data = json.load(f)
+
+    # Check if name exists, if not, prompt user or generate random name
+    if "name" not in assistant_data or not assistant_data["name"]:
+        try:
+            name = click.prompt("Enter a name for the assistant", type=str)
+        except click.exceptions.Abort:
+            name = f"Assistant_{generate_random_string(6)}"
+        assistant_data["name"] = name
+
+    # Remove properties that should not be included in the create request
+    keys_to_remove = ["id", "orgId", "createdAt", "updatedAt", "isServerUrlSecretSet"]
+    for key in keys_to_remove:
+        assistant_data.pop(key, None)
+
+    # Create the new assistant
+    created_assistant = create_assistant(assistant_data, api_key)
+
+    if created_assistant:
+        click.echo(f"New assistant created successfully:")
+        click.echo(f"Name: {created_assistant['name']}")
+        click.echo(f"ID: {created_assistant['id']}")
+
+        # Update the configuration with the new assistant
+        config_data.setdefault("assistant_ids", []).append(created_assistant["id"])
+        config_data.setdefault("assistant_directories", {})[
+            created_assistant["id"]
+        ] = directory
+        update_config(config, config_data)
+        click.echo("Configuration updated with the new assistant.")
+
+
+def create_assistant(assistant_data, api_key):
+    url = "https://api.vapi.ai/assistant"
+    headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
+
+    try:
+        response = requests.post(url, headers=headers, json=assistant_data)
+        response.raise_for_status()
+        return response.json()
+    except requests.exceptions.RequestException as e:
+        click.echo(
+            f"Error creating assistant: {e}\nResponse details: {e.response.text}",
+            err=True,
+        )
+        return None
+
+
+def generate_random_string(length):
+    return "".join(random.choices(string.ascii_letters + string.digits, k=length))
 
 
 def update_config(config_file, updated_config):
