@@ -441,10 +441,21 @@ def publish(config: str, directory: str):
 
     # Check if name exists, if not, prompt user or generate random name
     if "name" not in assistant_data or not assistant_data["name"]:
-        try:
-            name = click.prompt("Enter a name for the assistant", type=str)
-        except click.exceptions.Abort:
-            name = f"Assistant_{generate_random_string(6)}"
+        while True:
+            try:
+                name = click.prompt(
+                    "Enter a name for the assistant (or 'random' for a random name)",
+                    type=str,
+                )
+                if name.lower() == "random":
+                    name = f"Assistant_{generate_random_string(6)}"
+                    click.echo(f"Generated random name: {name}")
+                break
+            except click.exceptions.Abort:
+                if click.confirm("Do you want to exit?", default=True):
+                    click.echo("Operation cancelled.")
+                    return
+                click.echo("Continuing with name input...")
         assistant_data["name"] = name
 
     # Remove properties that should not be included in the create request
