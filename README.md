@@ -1,6 +1,6 @@
 # Vapi-VCT (Vapi Version Control Tools)
 
-Vapi-VCT is a Python-based CLI tool designed to facilitate version control and management of Vapi AI assistants. This tool allows you to fetch, decompose, recompose, and update Vapi assistant configurations, making it easier to track changes, collaborate, and maintain your AI assistants.
+Vapi-VCT is a Python-based CLI tool designed to facilitate version control and management of Vapi AI assistants. This tool allows you to fetch, decompose, recompose, update, and publish Vapi assistant configurations, making it easier to track changes, collaborate, and maintain your AI assistants.
 
 ## Features
 
@@ -8,6 +8,7 @@ Vapi-VCT is a Python-based CLI tool designed to facilitate version control and m
 - **Decompose**: Extract components of a Vapi assistant JSON into separate files for easier version control.
 - **Recompose**: Rebuild a Vapi assistant JSON from its decomposed components.
 - **Update**: Push updated Vapi assistant configurations back to the Vapi API.
+- **Publish**: Publish a new assistant from a decomposed directory.
 - **Config Management**: Manage project-specific configurations directly from the command line.
 
 ## Prerequisites
@@ -116,6 +117,26 @@ vapi_vct update [--config CONFIG_FILE] [--no-recompose]
 
 - `--config`: Specify a custom configuration file (default: `vapi_config.json` in the current directory)
 - `--no-recompose`: Skip recomposing assistants before updating
+
+### Publishing New Assistants
+
+To publish a new assistant from a decomposed directory:
+
+```
+vapi_vct publish [--config CONFIG_FILE] DIRECTORY
+```
+
+- `--config`: Specify a custom configuration file (default: `vapi_config.json` in the current directory)
+- `DIRECTORY`: The path to the decomposed assistant directory
+
+This command will:
+1. Recompose the assistant from the specified directory
+2. Check for an existing name in the configuration
+3. If no name is found, prompt the user for a name or generate a random one if the user enters "random"
+4. Create a new assistant using the Vapi API
+5. Update the local configuration with the new assistant's ID and directory mapping
+
+After successful creation, the command will output the new assistant's name and ID, and update the configuration file.
 
 ### Managing Project-Specific Configurations
 
