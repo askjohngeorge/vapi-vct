@@ -1,6 +1,6 @@
 # Vapi-VCT (Vapi Version Control Tools)
 
-Vapi-VCT is a Python-based CLI tool designed to facilitate version control and management of Vapi AI assistants. This tool allows you to fetch, decompose, recompose, update, and publish Vapi assistant configurations, making it easier to track changes, collaborate, and maintain your AI assistants.
+Vapi-VCT is a Python-based CLI tool designed to facilitate version control and management of Vapi AI assistants. This tool allows you to locally fetch, decompose, recompose, update, and publish Vapi assistant configurations, making it easier to track changes, collaborate, and maintain your AI assistants.
 
 ## Features
 
