@@ -98,10 +98,8 @@ def fetch_assistant_and_save(assistant_ids, api_key):
 
 # Decomposition
 def extract_and_save(content, filename, directory):
-    if content is None:
-        return None
     with open(os.path.join(directory, filename), "w", encoding="utf-8") as f:
-        f.write(content)
+        f.write(content or "")
     return f"file:///{filename}"
 
 
@@ -139,47 +137,55 @@ def decompose_assistant(file_path, config_file):
     system_message = next(
         (msg for msg in data["model"]["messages"] if msg["role"] == "system"), None
     )
-    if system_message:
-        data["model"]["messages"][0]["content"] = extract_and_save(
-            system_message["content"], "system_prompt.txt", directory
-        )
+    data["model"]["messages"][0]["content"] = extract_and_save(
+        system_message["content"] if system_message else None,
+        "system_prompt.txt",
+        directory,
+    )
 
     # Extract firstMessage
-    if "firstMessage" in data:
-        data["firstMessage"] = extract_and_save(
-            data["firstMessage"], "first_message.txt", directory
-        )
+    data["firstMessage"] = extract_and_save(
+        data.get("firstMessage"), "first_message.txt", directory
+    )
 
     # Extract analysisPlan components
     if "analysisPlan" in data:
         analysis_plan = data["analysisPlan"]
 
-        if "summaryPrompt" in analysis_plan:
-            analysis_plan["summaryPrompt"] = extract_and_save(
-                analysis_plan["summaryPrompt"], "summary_prompt.txt", directory
-            )
+        analysis_plan["summaryPrompt"] = extract_and_save(
+            analysis_plan.get("summaryPrompt"), "summary_prompt.txt", directory
+        )
 
-        if "structuredDataPrompt" in analysis_plan:
-            analysis_plan["structuredDataPrompt"] = extract_and_save(
-                analysis_plan["structuredDataPrompt"],
-                "structured_data_prompt.txt",
-                directory,
-            )
+        analysis_plan["structuredDataPrompt"] = extract_and_save(
+            analysis_plan.get("structuredDataPrompt"),
+            "structured_data_prompt.txt",
+            directory,
+        )
 
-        if "structuredDataSchema" in analysis_plan:
-            schema_path = os.path.join(directory, "structured_data_schema.json")
-            with open(schema_path, "w", encoding="utf-8") as f:
-                json.dump(analysis_plan["structuredDataSchema"], f, indent=2)
-            analysis_plan["structuredDataSchema"] = (
-                "file:///structured_data_schema.json"
-            )
+        schema_path = os.path.join(directory, "structured_data_schema.json")
+        with open(schema_path, "w", encoding="utf-8") as f:
+            json.dump(analysis_plan.get("structuredDataSchema", {}), f, indent=2)
+        analysis_plan["structuredDataSchema"] = "file:///structured_data_schema.json"
 
-        if "successEvaluationPrompt" in analysis_plan:
-            analysis_plan["successEvaluationPrompt"] = extract_and_save(
-                analysis_plan["successEvaluationPrompt"],
-                "success_evaluation_prompt.txt",
-                directory,
-            )
+        analysis_plan["successEvaluationPrompt"] = extract_and_save(
+            analysis_plan.get("successEvaluationPrompt"),
+            "success_evaluation_prompt.txt",
+            directory,
+        )
+    else:
+        # Create empty placeholder files if analysisPlan doesn't exist
+        for filename in [
+            "summary_prompt.txt",
+            "structured_data_prompt.txt",
+            "success_evaluation_prompt.txt",
+        ]:
+            extract_and_save(None, filename, directory)
+        with open(
+            os.path.join(directory, "structured_data_schema.json"),
+            "w",
+            encoding="utf-8",
+        ) as f:
+            json.dump({}, f)
 
     # Save the modified JSON
     with open(
@@ -229,38 +235,43 @@ def recompose_assistant(directory):
         (msg for msg in data["model"]["messages"] if msg["role"] == "system"), None
     )
     if system_message:
-        system_message["content"] = (
-            read_file_if_exists(resolve_file_path(system_message["content"], directory))
-            or system_message["content"]
+        content = read_file_if_exists(
+            resolve_file_path(system_message["content"], directory)
         )
+        if content:
+            system_message["content"] = content
 
     # Recompose firstMessage
-    if "firstMessage" in data:
-        data["firstMessage"] = (
-            read_file_if_exists(resolve_file_path(data["firstMessage"], directory))
-            or data["firstMessage"]
-        )
+    first_message_content = read_file_if_exists(
+        resolve_file_path("file:///first_message.txt", directory)
+    )
+    if first_message_content:
+        data["firstMessage"] = first_message_content
 
     # Recompose analysisPlan components
-    if "analysisPlan" in data:
-        analysis_plan = data["analysisPlan"]
+    analysis_plan = {}
 
-        for key in ["summaryPrompt", "structuredDataPrompt", "successEvaluationPrompt"]:
-            if key in analysis_plan:
-                analysis_plan[key] = (
-                    read_file_if_exists(
-                        resolve_file_path(analysis_plan[key], directory)
-                    )
-                    or analysis_plan[key]
-                )
+    for key, filename in [
+        ("summaryPrompt", "summary_prompt.txt"),
+        ("structuredDataPrompt", "structured_data_prompt.txt"),
+        ("successEvaluationPrompt", "success_evaluation_prompt.txt"),
+    ]:
+        content = read_file_if_exists(
+            resolve_file_path(f"file:///{filename}", directory)
+        )
+        if content:
+            analysis_plan[key] = content
 
-        if "structuredDataSchema" in analysis_plan:
-            schema_path = resolve_file_path(
-                analysis_plan["structuredDataSchema"], directory
-            )
-            if os.path.exists(schema_path):
-                with open(schema_path, "r", encoding="utf-8") as f:
-                    analysis_plan["structuredDataSchema"] = json.load(f)
+    schema_path = resolve_file_path("file:///structured_data_schema.json", directory)
+    if os.path.exists(schema_path):
+        with open(schema_path, "r", encoding="utf-8") as f:
+            schema_content = json.load(f)
+            if schema_content:
+                analysis_plan["structuredDataSchema"] = schema_content
+
+    # Update or add analysisPlan if any components were found
+    if analysis_plan:
+        data["analysisPlan"] = analysis_plan
 
     # Save the recomposed JSON
     directory_name = os.path.basename(os.path.normpath(directory))
