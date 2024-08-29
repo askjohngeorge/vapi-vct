@@ -2,7 +2,7 @@ import unittest
 import json
 import os
 from click.testing import CliRunner
-from vapi_vct import cli
+from vapi_vct import cli, decompose_assistant, recompose_assistant
 from unittest.mock import patch, MagicMock, mock_open
 
 
@@ -364,6 +364,97 @@ class TestVapiVCTFetchUpdate(unittest.TestCase):
 
         self.assertEqual(result.exit_code, 1)
         self.assertIn("Error: API key not found in configuration file.", result.output)
+
+
+class TestVapiVCTDecompositionRecomposition(unittest.TestCase):
+    def setUp(self):
+        self.runner = CliRunner()
+        self.config_file = "test_vapi_config.json"
+        self.mock_assistant_id = "asst_mock123456"
+        self.mock_api_key = "vapi_mock_api_key_123456"
+        self.mock_directory = f"mock_assistant--{self.mock_assistant_id[:8]}"
+
+    @patch("vapi_vct.os.makedirs")
+    @patch("vapi_vct.json.dump")
+    @patch("vapi_vct.load_config")
+    @patch("builtins.open", new_callable=mock_open)
+    def test_decompose_assistant_creates_empty_files(
+        self, mock_open, mock_load_config, mock_json_dump, mock_makedirs
+    ):
+        mock_data = {
+            "id": self.mock_assistant_id,
+            "name": "Mock Assistant",
+            "model": {
+                "messages": [
+                    {"role": "system", "content": "You are a helpful assistant."}
+                ]
+            },
+            "firstMessage": "Hello! How can I assist you today?",
+        }
+        mock_load_config.return_value = {"assistant_directories": {}}
+
+        # Set up the mock to return the JSON data when reading the file
+        mock_open.return_value.__enter__.return_value.read.return_value = json.dumps(
+            mock_data
+        )
+
+        mock_file_path = f"{self.mock_assistant_id}_fetched.json"
+        decompose_assistant(mock_file_path, self.config_file)
+
+        # Check if empty files are created
+        expected_empty_files = [
+            "summary_prompt.txt",
+            "structured_data_prompt.txt",
+            "success_evaluation_prompt.txt",
+            "structured_data_schema.json",
+        ]
+
+        for file in expected_empty_files:
+            mock_open.assert_any_call(
+                os.path.join(self.mock_directory, file), "w", encoding="utf-8"
+            )
+
+    @patch("vapi_vct.os.path.exists", return_value=True)
+    @patch("vapi_vct.json.load")
+    @patch("vapi_vct.json.dump")
+    @patch("vapi_vct.read_file_if_exists")
+    @patch("builtins.open", new_callable=mock_open)
+    def test_recompose_assistant_ignores_empty_files(
+        self, mock_open, mock_read_file, mock_json_dump, mock_json_load, mock_exists
+    ):
+        mock_json_load.side_effect = [
+            # assistant_config.json
+            {
+                "model": {
+                    "messages": [
+                        {"role": "system", "content": "file:///system_prompt.txt"}
+                    ]
+                },
+                "firstMessage": "file:///first_message.txt",
+                "analysisPlan": {},
+            },
+            # metadata.json
+            {"id": self.mock_assistant_id},
+            # structured_data_schema.json
+            {},
+        ]
+
+        # Simulate empty files by returning empty strings
+        mock_read_file.return_value = ""
+
+        recompose_assistant(self.mock_directory)
+
+        # Check if analysisPlan is present but empty in the final output
+        mock_json_dump.assert_called_once()
+        final_data = mock_json_dump.call_args[0][0]
+        self.assertIn("analysisPlan", final_data)
+        self.assertEqual(final_data["analysisPlan"], {})
+
+        # Check that specific keys are not in analysisPlan
+        self.assertNotIn("summaryPrompt", final_data["analysisPlan"])
+        self.assertNotIn("structuredDataPrompt", final_data["analysisPlan"])
+        self.assertNotIn("successEvaluationPrompt", final_data["analysisPlan"])
+        self.assertNotIn("structuredDataSchema", final_data["analysisPlan"])
 
 
 if __name__ == "__main__":
