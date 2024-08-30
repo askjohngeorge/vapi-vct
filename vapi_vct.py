@@ -482,9 +482,6 @@ def publish(config: str, directory: str):
 
         # Update the configuration with the new assistant
         config_data.setdefault("assistant_ids", []).append(created_assistant["id"])
-        config_data.setdefault("assistant_directories", {})[
-            created_assistant["id"]
-        ] = directory
         update_config(config, config_data)
         click.echo("Configuration updated with the new assistant.")
 
