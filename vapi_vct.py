@@ -211,7 +211,7 @@ def resolve_file_path(file_reference, directory):
 def read_file_if_exists(file_path):
     if os.path.exists(file_path):
         return read_file(file_path)
-    return None
+    return ""
 
 
 def recompose_assistant(directory):
@@ -238,15 +238,13 @@ def recompose_assistant(directory):
         content = read_file_if_exists(
             resolve_file_path(system_message["content"], directory)
         )
-        if content:
-            system_message["content"] = content
+        system_message["content"] = content
 
     # Recompose firstMessage
     first_message_content = read_file_if_exists(
         resolve_file_path("file:///first_message.txt", directory)
     )
-    if first_message_content:
-        data["firstMessage"] = first_message_content
+    data["firstMessage"] = first_message_content
 
     # Recompose analysisPlan components
     analysis_plan = {}
@@ -259,19 +257,19 @@ def recompose_assistant(directory):
         content = read_file_if_exists(
             resolve_file_path(f"file:///{filename}", directory)
         )
-        if content:
-            analysis_plan[key] = content
+        analysis_plan[key] = content
 
+    empty_schema = {"type": "object", "properties": {}}
     schema_path = resolve_file_path("file:///structured_data_schema.json", directory)
     if os.path.exists(schema_path):
         with open(schema_path, "r", encoding="utf-8") as f:
             schema_content = json.load(f)
-            if schema_content:
-                analysis_plan["structuredDataSchema"] = schema_content
+            analysis_plan["structuredDataSchema"] = schema_content or empty_schema
+    else:
+        analysis_plan["structuredDataSchema"] = empty_schema
 
     # Update or add analysisPlan if any components were found
-    if analysis_plan:
-        data["analysisPlan"] = analysis_plan
+    data["analysisPlan"] = analysis_plan
 
     # Save the recomposed JSON
     directory_name = os.path.basename(os.path.normpath(directory))
